@@ -37,10 +37,15 @@ nixos-generate-config --root /mnt
 sed -i '/^}$/i \
   services.openssh = {\n\
     enable = true;\n\
-    settings.PermitRootLogin = "yes";\n\
+    settings.PermitRootLogin = "no";\n\
     settings.PasswordAuthentication = true;\n\
   };\n\
-  networking.firewall.allowedTCPPorts = [ 22 ];' /mnt/etc/nixos/configuration.nix
+  networking.firewall.allowedTCPPorts = [ 22 ];\n\
+  users.users.nixos = {\n\
+    isNormalUser = true;\n\
+    extraGroups = [ "wheel" ];\n\
+    password = "nixos"; # Set a default password (replace as needed)\n\
+  };' /mnt/etc/nixos/configuration.nix
 
 # Install NixOS
 nixos-install
