@@ -30,8 +30,14 @@ mount /dev/sda1 /mnt/boot       # Mount EFI partition
 # Generate NixOS configuration
 nixos-generate-config --root /mnt
 
-# Use sed to insert SSH and firewall settings before the last }
-sed -i '/^}$/i \  services.openssh.enable = true;\n  networking.firewall.allowedTCPPorts = [ 22 ];' /mnt/etc/nixos/configuration.nix
+# Use sed to insert SSH settings, including password authentication, and firewall settings before the last }
+sed -i '/^}$/i \
+  services.openssh = {\n\
+    enable = true;\n\
+    permitRootLogin = "yes";\n\
+    passwordAuthentication = true;\n\
+  };\n\
+  networking.firewall.allowedTCPPorts = [ 22 ];' /mnt/etc/nixos/configuration.nix
 
 # Install NixOS
 nixos-install
