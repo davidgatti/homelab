@@ -39,17 +39,6 @@
     host = "0.0.0.0";
   };
 
-  # Custom systemd service to set permissions and group ownership
-  systemd.services.configure-etc-nixos = {
-    description = "Set permissions and group for /etc/nixos/configuration.nix";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "network.target" ];
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = "/bin/bash -c 'chgrp nixos /etc/nixos/configuration.nix && chmod 0664 /etc/nixos/configuration.nix'";
-    };
-  };
-
   systemd.services.install-pihole = {
     description = "Install and run Pi-hole in Docker";
     after = [ "docker.service" ];
@@ -65,7 +54,8 @@
       ExecStart = "${pkgs.docker}/bin/docker run -d --name pihole "
         + "--net=host "
         + "-e TZ=\"Europe/Rome\" "
-        + "-e WEBPASSWORD=\"your_secure_password\" " # Use a secure password
+        + "-e WEBPASSWORD=\"your_secure_password\" "
+        + "-e DNSMASQ_LISTENING=\"local\" "
         + "-v /etc/pihole:/etc/pihole "
         + "-v /etc/dnsmasq.d:/etc/dnsmasq.d "
         + "pihole/pihole";
