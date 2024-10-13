@@ -1,6 +1,9 @@
 # Manual Instalaltion
 
 ```
+# Switch to root
+sudo su
+
 # Partition, format, mount, generate configuration, edit configuration.nix, and install NixOS in one go
 (
 # Partition the disk
