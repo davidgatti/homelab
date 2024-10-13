@@ -20,7 +20,7 @@
 
   users.users.nixos = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "docker" ];
+    extraGroups = [ "wheel" "docker" "nixos" ];
     password = "nixos";
   };
 
@@ -38,6 +38,12 @@
     port = 8081;
     host = "0.0.0.0";
   };
+
+  # Automated permissions for /etc/nixos/configuration.nix using group
+  environment.etc."nixos/configuration.nix".source = /etc/nixos/configuration.nix;
+  environment.etc."nixos/configuration.nix".user = "root";
+  environment.etc."nixos/configuration.nix".group = "nixos";
+  environment.etc."nixos/configuration.nix".mode = "0664"; # Group read-write access
 
   systemd.services.install-pihole = {
     description = "Install and run Pi-hole in Docker";
