@@ -35,15 +35,20 @@
   services.code-server = {
     enable = true;
     user = "nixos";
-    port = 8081;
+    port = 8080;
     host = "0.0.0.0";
   };
 
-  # Automated permissions for /etc/nixos/configuration.nix using group
-  environment.etc."nixos/configuration.nix".source = /etc/nixos/configuration.nix;
-  environment.etc."nixos/configuration.nix".user = "root";
-  environment.etc."nixos/configuration.nix".group = "nixos";
-  environment.etc."nixos/configuration.nix".mode = "0664"; # Group read-write access
+  # Custom systemd service to set permissions and group ownership
+  systemd.services.configure-etc-nixos = {
+    description = "Set permissions and group for /etc/nixos/configuration.nix";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "network.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "/bin/bash -c 'chgrp nixos /etc/nixos/configuration.nix && chmod 0664 /etc/nixos/configuration.nix'";
+    };
+  };
 
   systemd.services.install-pihole = {
     description = "Install and run Pi-hole in Docker";
