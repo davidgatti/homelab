@@ -27,15 +27,18 @@ mount /dev/sda2 /mnt            # Mount root partition
 mkdir -p /mnt/boot              # Create boot directory
 mount /dev/sda1 /mnt/boot       # Mount EFI partition
 
+# Set secure permissions on /boot
+chmod 700 /mnt/boot             # Restrict access to /boot
+
 # Generate NixOS configuration
 nixos-generate-config --root /mnt
 
-# Use sed to insert SSH settings, including password authentication, and firewall settings before the last }
+# Use sed to insert SSH settings with correct options, and firewall settings before the last }
 sed -i '/^}$/i \
   services.openssh = {\n\
     enable = true;\n\
-    permitRootLogin = "yes";\n\
-    passwordAuthentication = true;\n\
+    settings.PermitRootLogin = "yes";\n\
+    settings.PasswordAuthentication = true;\n\
   };\n\
   networking.firewall.allowedTCPPorts = [ 22 ];' /mnt/etc/nixos/configuration.nix
 
