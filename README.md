@@ -1,3 +1,8 @@
+# NixOS
+
+- sudo nixos-rebuild switch
+- cat ~/.config/code-server/config.yaml
+
 # Manual Instalaltion
 
 ```
