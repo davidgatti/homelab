@@ -27,9 +27,6 @@ mount /dev/sda2 /mnt            # Mount root partition
 mkdir -p /mnt/boot              # Create boot directory
 mount /dev/sda1 /mnt/boot       # Mount EFI partition
 
-# Set secure permissions on /boot
-chmod 700 /mnt/boot             # Restrict access to /boot
-
 # Generate NixOS configuration
 nixos-generate-config --root /mnt
 
