@@ -1,7 +1,7 @@
 # NixOS
 
 - sudo bash -c ': > /etc/nixos/configuration.nix'
-- sudo nano /etc/nixos/configuration.nix
+- sudo curl -L https://raw.githubusercontent.com/davidgatti/nixos_setup/main/configuration.nix -o /etc/nixos/configuration.nix
 - sudo nixos-rebuild switch
 - cat ~/.config/code-server/config.yaml
 
