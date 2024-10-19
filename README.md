@@ -48,7 +48,7 @@ sed -i "/^}$/i \
   users.users.nixos = {\n\
     isNormalUser = true;\n\
     extraGroups = [ \"wheel\" ];\n\
-    password = \"nixos\"; # Set a default password (replace as needed)\n\
+    password = \"password\"; # Set a default password (replace as needed)\n\
   };" /mnt/etc/nixos/configuration.nix
 
 # Install NixOS
