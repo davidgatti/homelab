@@ -1,9 +1,44 @@
-# NixOS
+# NixOS Setup Guide (Automated)
 
-- sudo bash -c ': > /etc/nixos/configuration.nix'
-- sudo curl -L https://raw.githubusercontent.com/davidgatti/nixos_setup/main/configuration.nix -o /etc/nixos/configuration.nix
-- sudo nixos-rebuild switch
-- cat ~/.config/code-server/config.yaml
+You can use the following single command to automate the entire process of clearing the NixOS configuration, downloading a new configuration, applying the changes, and displaying the Code Server configuration. Just copy and paste the command below:
+
+### One-liner Command:
+```bash
+sudo bash -c ': > /etc/nixos/configuration.nix && \
+curl -L https://raw.githubusercontent.com/davidgatti/nixos_setup/main/configuration.nix -o /etc/nixos/configuration.nix && \
+nixos-rebuild switch && \
+cat ~/.config/code-server/config.yaml'
+```
+
+### Explanation:
+
+1. **Clear the NixOS configuration file**:
+   - This part empties the current `/etc/nixos/configuration.nix` file to start with a fresh configuration.
+
+   ```bash
+   : > /etc/nixos/configuration.nix
+   ```
+
+2. **Download the new configuration from GitHub**:
+   - Downloads the latest `configuration.nix` from the specified GitHub repository and overwrites the local file.
+
+   ```bash
+   curl -L https://raw.githubusercontent.com/davidgatti/nixos_setup/main/configuration.nix -o /etc/nixos/configuration.nix
+   ```
+
+3. **Apply the new NixOS configuration**:
+   - Rebuilds and switches to the new configuration without requiring a system reboot.
+
+   ```bash
+   nixos-rebuild switch
+   ```
+
+4. **Display the Code Server configuration**:
+   - This outputs the content of the VS Code Server configuration file so you can verify the settings.
+
+   ```bash
+   cat ~/.config/code-server/config.yaml
+   ```
 
 # Manual Instalaltion
 
