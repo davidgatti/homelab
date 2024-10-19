@@ -1,48 +1,42 @@
-# NixOS Setup Guide (Automated)
+# NixOS Setup Guide
 
-You can use the following single command to automate the entire process of clearing the NixOS configuration, downloading a new configuration, applying the changes, and displaying the Code Server configuration. Just copy and paste the command below:
+## 1. Initial Setup on the Target PC
 
-### One-liner Command:
+1. **Insert the NixOS USB into the PC**:
+   - Make sure the USB is inserted properly before booting.
+
+2. **Boot from USB**:
+   - Go to the BIOS and ensure the PC is set to boot from the USB drive.
+
+3. **Boot into NixOS**:
+   - Once prompted, select the option to boot into NixOS from the USB.
+
+4. **Set a temporary password**:
+   - Once NixOS is running, set a password to enable remote access via SSH. Run the following command in the terminal:
+     ```bash
+     passwd
+     ```
+   - Follow the prompts to set a password. This password will be used later for SSH access.
+
+5. **Find the PC’s IP address**:
+   - Run the following command to find the PC’s IP address:
+     ```bash
+     ip addr show
+     ```
+   - Note down the IP address, which you’ll use to connect via SSH.
+
+6. **Connect remotely via SSH**:
+   - From another computer on the same network, connect to the PC using the following command (replace `IP` with the actual IP address of the PC):
+     ```bash
+     ssh nixos@IP
+     ```
+   - Use the password you just set when prompted.
+
+---
+
+## 2. OS Installation
+
 ```bash
-sudo bash -c ': > /etc/nixos/configuration.nix && \
-curl -L https://raw.githubusercontent.com/davidgatti/nixos_setup/main/configuration.nix -o /etc/nixos/configuration.nix && \
-nixos-rebuild switch && \
-cat ~/.config/code-server/config.yaml'
-```
-
-### Explanation:
-
-1. **Clear the NixOS configuration file**:
-   - This part empties the current `/etc/nixos/configuration.nix` file to start with a fresh configuration.
-
-   ```bash
-   : > /etc/nixos/configuration.nix
-   ```
-
-2. **Download the new configuration from GitHub**:
-   - Downloads the latest `configuration.nix` from the specified GitHub repository and overwrites the local file.
-
-   ```bash
-   curl -L https://raw.githubusercontent.com/davidgatti/nixos_setup/main/configuration.nix -o /etc/nixos/configuration.nix
-   ```
-
-3. **Apply the new NixOS configuration**:
-   - Rebuilds and switches to the new configuration without requiring a system reboot.
-
-   ```bash
-   nixos-rebuild switch
-   ```
-
-4. **Display the Code Server configuration**:
-   - This outputs the content of the VS Code Server configuration file so you can verify the settings.
-
-   ```bash
-   cat ~/.config/code-server/config.yaml
-   ```
-
-# Manual Instalaltion
-
-```
 sudo bash -c '
 (
 echo g                        # Create a new GPT partition table
@@ -74,7 +68,7 @@ chmod 700 /mnt/boot             # Restrict access to /boot
 # Generate NixOS configuration
 nixos-generate-config --root /mnt
 
-# Use sed to insert SSH settings with correct options, and firewall settings before the last }
+# Insert SSH and firewall settings into configuration.nix
 sed -i "/^}$/i \
   services.openssh = {\n\
     enable = true;\n\
@@ -99,3 +93,41 @@ umount -R /mnt
 reboot
 '
 ```
+
+---
+
+## 3. Reconnect After Installation
+
+1. **Remove `known_hosts` (if necessary)**:
+1. **Reconnect via SSH**:
+   - Connect to the newly installed NixOS system:
+     ```bash
+     ssh nixos@IP
+     ```
+   - Use the password you set during the installation process.
+
+## 4. NixOS Configuration
+
+Once connected via SSH, proceed with the NixOS configuration. Copy and paste the following command to start the configuration process:
+
+### One-liner Command:
+```bash
+sudo bash -c ': > /etc/nixos/configuration.nix && \
+curl -L https://raw.githubusercontent.com/davidgatti/nixos_setup/main/configuration.nix -o /etc/nixos/configuration.nix && \
+nixos-rebuild switch && \
+cat ~/.config/code-server/config.yaml'
+```
+
+### Explanation:
+
+1. **Clear the NixOS configuration file**:
+   - Empties the current `/etc/nixos/configuration.nix` file to start with a fresh configuration.
+   
+2. **Download the new configuration**:
+   - Fetches the latest `configuration.nix` file from GitHub and saves it to `/etc/nixos/configuration.nix`.
+
+3. **Apply the NixOS configuration**:
+   - Rebuilds and applies the NixOS configuration immediately.
+
+4. **View the Code Server configuration**:
+   - Displays the contents of the VS Code Server configuration file for verification.
