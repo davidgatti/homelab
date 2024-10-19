@@ -6,9 +6,8 @@
 # Manual Instalaltion
 
 ```
-# Partition, format, mount, generate configuration, edit configuration.nix, and install NixOS in one go
+sudo bash -c '
 (
-# Partition the disk
 echo g                        # Create a new GPT partition table
 echo n                        # New partition (EFI)
 echo 1                        # Partition number 1
@@ -39,18 +38,18 @@ chmod 700 /mnt/boot             # Restrict access to /boot
 nixos-generate-config --root /mnt
 
 # Use sed to insert SSH settings with correct options, and firewall settings before the last }
-sed -i '/^}$/i \
+sed -i "/^}$/i \
   services.openssh = {\n\
     enable = true;\n\
-    settings.PermitRootLogin = "no";\n\
+    settings.PermitRootLogin = \"no\";\n\
     settings.PasswordAuthentication = true;\n\
   };\n\
   networking.firewall.allowedTCPPorts = [ 22 ];\n\
   users.users.nixos = {\n\
     isNormalUser = true;\n\
-    extraGroups = [ "wheel" ];\n\
-    password = "nixos"; # Set a default password (replace as needed)\n\
-  };' /mnt/etc/nixos/configuration.nix
+    extraGroups = [ \"wheel\" ];\n\
+    password = \"nixos\"; # Set a default password (replace as needed)\n\
+  };" /mnt/etc/nixos/configuration.nix
 
 # Install NixOS
 nixos-install
@@ -58,4 +57,5 @@ nixos-install
 # Unmount and reboot
 umount -R /mnt
 reboot
+'
 ```
