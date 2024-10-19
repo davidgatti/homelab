@@ -5,36 +5,36 @@
 1. **Insert the NixOS USB into the PC**:
    - Make sure the USB is inserted properly before booting.
 
-2. **Boot from USB**:
+1. **Boot from USB**:
    - Go to the BIOS and ensure the PC is set to boot from the USB drive.
 
-3. **Boot into NixOS**:
+1. **Boot into NixOS**:
    - Once prompted, select the option to boot into NixOS from the USB.
 
-4. **Set a temporary password**:
+1. **Set a temporary password**:
    - Once NixOS is running, set a password to enable remote access via SSH. Run the following command in the terminal:
      ```bash
      passwd
      ```
    - Follow the prompts to set a password. This password will be used later for SSH access.
 
-5. **Find the PC’s IP address**:
+1. **Find the PC’s IP address**:
    - Run the following command to find the PC’s IP address:
      ```bash
      ip addr show
      ```
    - Note down the IP address, which you’ll use to connect via SSH.
 
-6. **Connect remotely via SSH**:
+1. **Connect remotely via SSH**:
    - From another computer on the same network, connect to the PC using the following command (replace `IP` with the actual IP address of the PC):
      ```bash
      ssh nixos@IP
      ```
    - Use the password you just set when prompted.
 
----
-
 ## 2. OS Installation
+
+Copy and paste the following in the terminal to start the installation process.
 
 ```bash
 sudo bash -c '
@@ -93,8 +93,6 @@ umount -R /mnt
 reboot
 '
 ```
-
----
 
 ## 3. Reconnect After Installation
 
