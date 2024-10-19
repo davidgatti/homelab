@@ -54,6 +54,9 @@ sed -i "/^}$/i \
 # Install NixOS
 nixos-install
 
+# Set the root password non-interactively
+echo "root:root" | chroot /mnt chpasswd
+
 # Unmount and reboot
 umount -R /mnt
 reboot
