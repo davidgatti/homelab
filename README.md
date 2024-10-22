@@ -129,3 +129,6 @@ cat ~/.config/code-server/config.yaml'
 
 4. **View the Code Server configuration**:
    - Displays the contents of the VS Code Server configuration file for verification.
+
+
+sudo nixos-rebuild switch -I nixos-config=./configuration.nix
