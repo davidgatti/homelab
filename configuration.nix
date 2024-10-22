@@ -3,7 +3,7 @@
 {
   imports =
     [ 
-      ./hardware-configuration.nix 
+      /etc/nixos/hardware-configuration.nix 
     ];
 
   boot.loader.systemd-boot.enable = true;
@@ -28,6 +28,9 @@
   environment.systemPackages = with pkgs; [
     code-server
     docker
+    git
+    gh
+    nixpkgs-fmt
   ];
 
   # Enable Docker with default configuration only
@@ -45,7 +48,7 @@
     after = [ "docker.service" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
-      Type = "oneshot";
+      Type = "simple";
 
       ExecStartPre = [
         "-${pkgs.docker}/bin/docker stop pihole"
@@ -60,7 +63,28 @@
         + "-v /etc/pihole:/etc/pihole "
         + "-v /etc/dnsmasq.d:/etc/dnsmasq.d "
         + "pihole/pihole";
-      RemainAfterExit = true;
+    };
+  };
+
+  systemd.services.install-homeassistant = {
+    description = "Install and run Home Assistant in Docker";
+    after = [ "docker.service" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "simple";
+
+      ExecStartPre = [
+        "-${pkgs.docker}/bin/docker stop homeassistant || true"
+        "-${pkgs.docker}/bin/docker rm homeassistant || true"
+      ];
+
+      ExecStart = "${pkgs.docker}/bin/docker run -d --name homeassistant "
+                + "-p 8123:8123 "
+                + "--net=host "
+                + "-e TZ=\"Europe/Rome\" "
+                + "-v /etc/homeassistant:/config "
+                + "homeassistant/home-assistant:latest";
+      
     };
   };
 }
