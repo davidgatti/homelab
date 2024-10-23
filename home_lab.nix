@@ -43,29 +43,6 @@
     host = "0.0.0.0";
   };
 
-  systemd.services.install-pihole = {
-    description = "Install and run Pi-hole in Docker";
-    after = [ "docker.service" ];
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      Type = "simple";
-
-      ExecStartPre = [
-        "-${pkgs.docker}/bin/docker stop pihole"
-        "-${pkgs.docker}/bin/docker rm pihole"
-      ];
-
-      ExecStart = "${pkgs.docker}/bin/docker run -d --name pihole "
-        + "--net=host "
-        + "-e TZ=\"Europe/Rome\" "
-        + "-e WEBPASSWORD=\"your_secure_password\" "
-        + "-e DNSMASQ_LISTENING=\"local\" "
-        + "-v /etc/pihole:/etc/pihole "
-        + "-v /etc/dnsmasq.d:/etc/dnsmasq.d "
-        + "pihole/pihole";
-    };
-  };
-
   systemd.services.install-homeassistant = {
     description = "Install and run Home Assistant in Docker";
     after = [ "docker.service" ];
