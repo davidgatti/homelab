@@ -38,6 +38,18 @@ Copy and paste the following in the terminal to start the installation process.
 
 ```bash
 sudo bash -c '
+# Detect the main drive (largest, non-removable drive)
+MAIN_DRIVE=$(lsblk -nd -o NAME,SIZE,TYPE | grep -Ev "loop|rom" | sort -k2 -h | tail -1 | awk "{print \"/dev/\" \$1}")
+
+# Determine if the main drive is NVMe or not
+if [[ "$MAIN_DRIVE" == *nvme* ]]; then
+  PART1="${MAIN_DRIVE}p1"
+  PART2="${MAIN_DRIVE}p2"
+else
+  PART1="${MAIN_DRIVE}1"
+  PART2="${MAIN_DRIVE}2"
+fi
+
 (
 echo g                        # Create a new GPT partition table
 echo n                        # New partition (EFI)
@@ -51,19 +63,22 @@ echo 2                        # Partition number 2
 echo                          # Default - start immediately after previous partition
 echo                          # Use remaining space
 echo w                        # Write changes
-) | fdisk /dev/sda            # Run fdisk on /dev/sda
+) | fdisk "$MAIN_DRIVE"       # Run fdisk on the detected main drive
+
+# Reload partition table to recognize new partitions
+partprobe "$MAIN_DRIVE"
 
 # Format the partitions
-mkfs.fat -F 32 /dev/sda1        # Force format EFI partition as FAT32
-mkfs.ext4 -F /dev/sda2          # Force format root partition as ext4
+mkfs.fat -F 32 "$PART1"       # Force format EFI partition as FAT32
+mkfs.ext4 -F "$PART2"         # Force format root partition as ext4
 
 # Mount the partitions
-mount /dev/sda2 /mnt            # Mount root partition
-mkdir -p /mnt/boot              # Create boot directory
-mount /dev/sda1 /mnt/boot       # Mount EFI partition
+mount "$PART2" /mnt           # Mount root partition
+mkdir -p /mnt/boot            # Create boot directory
+mount "$PART1" /mnt/boot      # Mount EFI partition
 
 # Set secure permissions on /boot
-chmod 700 /mnt/boot             # Restrict access to /boot
+chmod 700 /mnt/boot           # Restrict access to /boot
 
 # Generate NixOS configuration
 nixos-generate-config --root /mnt
