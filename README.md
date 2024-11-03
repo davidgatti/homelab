@@ -2,7 +2,7 @@
 
 ## OS Installation
 
-### Boot from USB
+### USB Boot
 
 1. **Insert the NixOS USB into the PC**:
    - Make sure the USB is inserted properly before booting.
@@ -34,7 +34,7 @@
      ```
    - Use the password you just set when prompted.
 
-### OS Configuration
+### Install
 
 Copy and paste the following in the terminal to start the installation process.
 
@@ -111,7 +111,7 @@ reboot
 '
 ```
 
-## OS Configuration
+## OS Base Configuration
 
 1. **Remove `known_hosts` (if necessary)**:
 1. **Reconnect via SSH**:
@@ -125,28 +125,29 @@ Once connected via SSH, proceed with the NixOS configuration. Copy and paste the
 
 ### DNS Setup
 
-### HomeLab Setup
-
 ```bash
 sudo bash -c ': > /etc/nixos/configuration.nix && \
-curl -L https://raw.githubusercontent.com/davidgatti/nixos_setup/main/configuration.nix -o /etc/nixos/configuration.nix && \
+curl -L https://raw.githubusercontent.com/davidgatti/nixos_setup/main/server/dns.nix -o /etc/nixos/configuration.nix && \
 nixos-rebuild switch && \
 cat ~/.config/code-server/config.yaml'
 ```
 
-### Explanation:
+### HomeLab Setup
 
-1. **Clear the NixOS configuration file**:
-   - Empties the current `/etc/nixos/configuration.nix` file to start with a fresh configuration.
-   
-2. **Download the new configuration**:
-   - Fetches the latest `configuration.nix` file from GitHub and saves it to `/etc/nixos/configuration.nix`.
+```bash
+sudo bash -c ': > /etc/nixos/configuration.nix && \
+curl -L https://raw.githubusercontent.com/davidgatti/nixos_setup/main/server/home_lab.nix -o /etc/nixos/configuration.nix && \
+nixos-rebuild switch && \
+cat ~/.config/code-server/config.yaml'
+```
 
-3. **Apply the NixOS configuration**:
-   - Rebuilds and applies the NixOS configuration immediately.
+## User Configuration
 
-4. **View the Code Server configuration**:
-   - Displays the contents of the VS Code Server configuration file for verification.
+```bash
+curl -L https://raw.githubusercontent.com/davidgatti/nixos_setup/main/user/home.nix -o ~/.config/home-manager/home.nix && \
+home-manager switch
+```
+
 
 # 🧐 F.A.Q
 
