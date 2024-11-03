@@ -2,7 +2,7 @@
 
 ## OS Installation
 
-### USB Boot
+### Boot
 
 1. **Insert the NixOS USB into the PC**:
    - Make sure the USB is inserted properly before booting.
@@ -111,7 +111,7 @@ reboot
 '
 ```
 
-## OS Base Configuration
+## OS Configuration
 
 1. **Remove `known_hosts` (if necessary)**:
 1. **Reconnect via SSH**:
