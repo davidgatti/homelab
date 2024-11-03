@@ -1,6 +1,8 @@
 # NixOS Setup Guide
 
-## 1. Initial Setup on the Target PC
+## OS Installation
+
+### Boot from USB
 
 1. **Insert the NixOS USB into the PC**:
    - Make sure the USB is inserted properly before booting.
@@ -32,7 +34,7 @@
      ```
    - Use the password you just set when prompted.
 
-## 2. OS Installation
+### OS Configuration
 
 Copy and paste the following in the terminal to start the installation process.
 
@@ -109,7 +111,7 @@ reboot
 '
 ```
 
-## 3. Reconnect After Installation
+## OS Configuration
 
 1. **Remove `known_hosts` (if necessary)**:
 1. **Reconnect via SSH**:
@@ -119,11 +121,12 @@ reboot
      ```
    - Use the password you set during the installation process.
 
-## 4. NixOS Configuration
-
 Once connected via SSH, proceed with the NixOS configuration. Copy and paste the following command to start the configuration process:
 
-### One-liner Command:
+### DNS Setup
+
+### HomeLab Setup
+
 ```bash
 sudo bash -c ': > /etc/nixos/configuration.nix && \
 curl -L https://raw.githubusercontent.com/davidgatti/nixos_setup/main/configuration.nix -o /etc/nixos/configuration.nix && \
@@ -145,5 +148,6 @@ cat ~/.config/code-server/config.yaml'
 4. **View the Code Server configuration**:
    - Displays the contents of the VS Code Server configuration file for verification.
 
+# 🧐 F.A.Q
 
-sudo nixos-rebuild switch -I nixos-config=./configuration.nix
+- `sudo nixos-rebuild switch -I nixos-config=./configuration.nix`

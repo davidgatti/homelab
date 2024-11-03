@@ -9,7 +9,7 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   system.stateVersion = "24.05";
-  networking.hostName = "HomeLab";
+  networking.hostName = "PiHole";
 
   services.openssh = {
     enable = true;
@@ -26,42 +26,36 @@
   };
 
   environment.systemPackages = with pkgs; [
-    code-server
     docker
-    git
-    gh
-    nixpkgs-fmt
   ];
 
   # Enable Docker with default configuration only
   virtualisation.docker.enable = true;
 
-  services.code-server = {
-    enable = true;
-    user = "nixos";
-    port = 8080;
-    host = "0.0.0.0";
-  };
-
-  systemd.services.install-homeassistant = {
-    description = "Install and run Home Assistant in Docker";
+  systemd.services.install-pihole = {
+    description = "Install and run Pi-hole in Docker";
     after = [ "docker.service" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       Type = "simple";
 
       ExecStartPre = [
-        "-${pkgs.docker}/bin/docker stop homeassistant || true"
-        "-${pkgs.docker}/bin/docker rm homeassistant || true"
+        "-${pkgs.docker}/bin/docker stop pihole"
+        "-${pkgs.docker}/bin/docker rm pihole"
       ];
 
-      ExecStart = "${pkgs.docker}/bin/docker run -d --name homeassistant "
-                + "-p 8123:8123 "
-                + "--net=host "
-                + "-e TZ=\"Europe/Rome\" "
-                + "-v /etc/homeassistant:/config "
-                + "homeassistant/home-assistant:latest";
-      
+      ExecStart = "${pkgs.docker}/bin/docker run -d --name pihole "
+        + "--net=host "
+        + "-e TZ=\"Europe/Rome\" "
+        + "-e WEBPASSWORD=\"password\" "
+        + "-e DNSMASQ_LISTENING=\"all\" "
+        + "-e DNSSEC=\"true\" "
+        + "-e DNS_FQDN_REQUIRED=\"true\" "
+        + "-e DNS_BOGUS_PRIV=\"true\" "
+        + "-v /etc/pihole:/etc/pihole "
+        + "-v /etc/dnsmasq.d:/etc/dnsmasq.d "
+        + "pihole/pihole";
     };
   };
+
 }
