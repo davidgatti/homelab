@@ -19,7 +19,7 @@
 
   # Add a few system packages for the user
   home.packages = with pkgs; [
-    tree
+    tree    # Directory listing in tree format
     gh
     btop
     git
@@ -28,6 +28,22 @@
     neofetch
     mesa-demos
     radeontop
+    handbrake
+
+    # Tools
+    mc
+    zip
+    pv
+
+    # Games
+    bastet
+    nudoku
+    
+    # Fun
+    asciiquarium
+    sl
+    tty-clock
+    nyancat
   ];
 
   # Enable Bash and customize the prompt
@@ -47,6 +63,4 @@
       export PS1="\[\e[35m\][\u@\h \A] \[\e[33m\]\w\[\e[0m\]\$ "
     '';
   };
-
-  
 }
