@@ -1,157 +1,140 @@
-# 
-# sudo nixos-rebuild switch -I nixos-config=$HOME/home_lab.nix
-#
-
 { config, pkgs, ... }:
 
-let
-  unstable = import <nixos-unstable> { };
-in
 {
-  imports = [
-    /etc/nixos/hardware-configuration.nix
+  home.username = "nixos";  # Replace with your actual username
+  home.homeDirectory = "/home/nixos";  # Adjust if your home directory is different
+
+  # Declare Home Manager state version
+  home.stateVersion = "23.05";  # Match the release of Home Manager you installed
+
+  # Enable Bash autocompletion for commands
+  programs.bash.enableCompletion = true;
+
+  # Enable and configure Git
+  programs.git = {
+    enable = true;
+    userName = "davidgatti";  # Replace with your actual name
+    userEmail = "411114+davidgatti@users.noreply.github.com";  # Replace with your actual email
+  };
+
+  # Add a few system packages for the user
+  home.packages = with pkgs; [
+    tree    # Directory listing in tree format
+    gh
+    btop
+    git
+    cmatrix
+    fzf
+    neofetch
+    mesa-demos
+    radeontop
+    handbrake
+    tmux
+
+    # Tools
+    mc
+    zip
+    pv
+
+    # Games
+    bastet
+    nudoku
+    
+    # Fun
+    asciiquarium
+    sl
+    tty-clock
+    nyancat
   ];
 
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-  boot.initrd.kernelModules = [ "amdgpu" ];
-
-  nixpkgs.config.allowUnfree = true;
-
-  system.stateVersion = "24.05";
-  networking.hostName = "HomeLab";
-
-  services.openssh = {
+  # Enable Bash and customize the prompt
+  programs.bash = {
     enable = true;
-    settings.PermitRootLogin = "no";
-    settings.PasswordAuthentication = true;
-  };
 
-  networking.firewall.enable = false;
-
-  users.users.nixos = {
-    isNormalUser = true;
-    extraGroups = [ "wheel" "docker" "video" "render" ];
-    password = "nixos";
-  };
-
-  environment.systemPackages = with pkgs; [
-    home-manager
-    code-server
-    docker
-    nixpkgs-fmt
-    cifs-utils
-    rocm-opencl-icd
-    rocmPackages.rocminfo
-  ];
-
-  services.code-server = {
-    enable = true;
-    user = "nixos";
-    port = 8080;
-    host = "0.0.0.0";
-  };
-
-  services.ollama = {
-    package = unstable.ollama;
-    enable = true;
-    acceleration = "rocm"; # or "cuda"
-  };
-
-  # Enable Docker with default configuration only
-  virtualisation.docker.enable = true;
-
-  # Enable Bluetooth hardware support
-  hardware.bluetooth.enable = true;
-
-  systemd.services.docker-macvlan = {
-    description = "Docker macvlan network setup";
-    after = [ "docker.service" ];
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-      ExecStart = ''
-        ${pkgs.docker}/bin/docker network create -d macvlan \
-          --subnet=192.168.2.0/24 \
-          --gateway=192.168.2.1 \
-          -o parent=enp1s0 \
-          home_bridge
-      '';
-      ExecStop = "${pkgs.docker}/bin/docker network rm home_bridge";
+    # Set up custom aliases
+    shellAliases = {
+      ll = "ls -alh";  # Convenient alias for directory listing
+      ls = "ls --color=auto";
+      search = "fzf";
+      system_info = "neofetch";
     };
+
+    # Download git-prompt.sh if not available and source it in the prompt
+    initExtra = ''
+      # Check if git-prompt.sh exists; if not, download it
+      if [ ! -f ~/.git-prompt.sh ]; then
+        curl -o ~/.git-prompt.sh https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh
+      fi
+
+      # Source git-prompt.sh to enable Git info in the prompt
+      source ~/.git-prompt.sh
+
+      # Set options for Git prompt
+      export GIT_PS1_SHOWDIRTYSTATE=1
+      export GIT_PS1_SHOWUNTRACKEDFILES=1
+
+      # Customize the bash prompt
+      export PS1="\[\e[0;30;48;2;255;0;0m\] \u][\W  $(__git_ps1 '%s')\[\e[0m\]\[\e[38;2;255;0;0m\]\[\e[0m\] "
+
+    '';
   };
 
-  systemd.services.install-homeassistant = {
-    description = "Install and run Home Assistant in Docker";
-    after = [ "docker.service" "docker-macvlan.service" ];
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      Type = "simple";
-      ExecStartPre = [
-        "-${pkgs.docker}/bin/docker stop homeassistant || true"
-        "-${pkgs.docker}/bin/docker rm homeassistant || true"
-      ];
-      ExecStart = ''
-        ${pkgs.docker}/bin/docker run -d --name homeassistant \
-          --network=home_bridge \
-          --ip=192.168.2.11 \
-          --hostname HomeAssistant \
-          --mac-address B8:27:EB:12:34:56 \
-          -e TZ="Europe/Rome" \
-          -v /etc/homeassistant:/config \
-          -v /run/dbus:/run/dbus:ro \
-          -v /mnt/music:/media/music:rw \
-          homeassistant/home-assistant:latest
+  # Create a configuration file for code-server
+  # Create configuration files for code-server and Neovim
+  home.file = {
+    ".local/share/code-server/User/settings.json" = {
+      force = true;
+      text = ''
+        {
+          "workbench.colorTheme": "Default Dark+",
+          "editor.fontSize": 12,
+          "terminal.integrated.fontSize": 12,
+          "explorer.confirmDelete": true,
+          "files.autoSave": "onWindowChange",
+          "explorer.compactFolders": false,
+          "workbench.tree.indent": 16,
+          "workbench.colorCustomizations": {
+            "terminal.background": "#000000",
+            "terminal.foreground": "#cc0000",
+            "terminalCursor.foreground": "#ff0000",
+            "terminal.ansiBlack": "#000000",
+            "terminal.ansiRed": "#ff0000",
+            "terminal.ansiGreen": "#006400",
+            "terminal.ansiYellow": "#b8860b",
+            "terminal.ansiBlue": "#8B0000",
+            "terminal.ansiMagenta": "#ff1493",
+            "terminal.ansiCyan": "#00ced1",
+            "terminal.ansiWhite": "#d3d3d3",
+            "terminal.ansiBrightBlack": "#696969",
+            "terminal.ansiBrightRed": "#ff0000",
+            "terminal.ansiBrightGreen": "#32cd32",
+            "terminal.ansiBrightYellow": "#ffd700",
+            "terminal.ansiBrightBlue": "#ff0000",
+            "terminal.ansiBrightMagenta": "#ff69b4",
+            "terminal.ansiBrightCyan": "#e0ffff",
+            "terminal.ansiBrightWhite": "#ffffff",
+            "statusBar.background": "#8b0000",
+            "statusBar.foreground": "#ffffff",
+            "statusBar.debuggingBackground": "#ff0000",
+            "statusBar.debuggingForeground": "#ffffff",
+            "statusBarItem.remoteBackground": "#8b0000",
+            "statusBarItem.remoteForeground": "#ffffff",
+            "terminal.tab.activeBackground": "#8b0000",
+            "terminal.tab.activeForeground": "#ffffff",
+            "terminal.tab.inactiveBackground": "#660000",
+            "terminal.tab.inactiveForeground": "#d3d3d3"
+          },
+          "terminal.integrated.fontFamily": "'Hack Nerd Font', monospace",
+          "terminal.integrated.cursorStyle": "block",
+          "git.enableSmartCommit": true,
+          "git.confirmSync": false,
+          "terminal.integrated.autoFocus": true,
+          "editor.suggest.showComments": false,
+          "docker.containers.sortBy": "Label"
+        }
       '';
     };
   };
 
-  systemd.services.jellyfin = {
-    description = "Jellyfin Media Server";
-    after = [ "docker.service" "docker-macvlan.service" ];
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      Type = "simple";
-      ExecStartPre = [
-        "${pkgs.docker}/bin/docker volume create jellyfin-config"
-        "${pkgs.docker}/bin/docker volume create jellyfin-cache"
-        "-${pkgs.docker}/bin/docker stop jellyfin || true"
-        "-${pkgs.docker}/bin/docker rm jellyfin || true"
-      ];
-      ExecStart = ''
-        ${pkgs.docker}/bin/docker run -d --name jellyfin \
-          --network=home_bridge \
-          --ip=192.168.2.12 \
-          --hostname Jellyfin \
-          --mac-address B8:27:EB:12:34:57 \
-          -e TZ="Europe/Rome" \
-          -v /mnt/media:/media:ro \
-          -v jellyfin-config:/config \
-          -v jellyfin-cache:/cache \
-          jellyfin/jellyfin:latest
-      '';
-    };
-  };
-
-  fileSystems."/mnt/media" = {
-    device = "//192.168.2.2/media";
-    fsType = "cifs";
-    options = [ "username=media" "password=sdsd" "rw" ];
-  };
-
-  fileSystems."/mnt/dropbox" = {
-    device = "//192.168.2.2/dropbox";
-    fsType = "cifs";
-    options = [
-      "guest"
-      "uid=1000"
-      "gid=100"
-      "file_mode=0644"
-      "dir_mode=0755"
-      "rw"
-      "vers=3.0"
-    ];
-  };
 
 }
