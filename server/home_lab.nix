@@ -1,11 +1,15 @@
+# 
+# sudo nixos-rebuild switch -I nixos-config=$HOME/home_lab.nix
+#
+
 { config, pkgs, ... }:
 
 let
-  unstable = import <nixos-unstable> {};
+  unstable = import <nixos-unstable> { };
 in
 {
-  imports = [ 
-    /etc/nixos/hardware-configuration.nix 
+  imports = [
+    /etc/nixos/hardware-configuration.nix
   ];
 
   boot.loader.systemd-boot.enable = true;
@@ -60,9 +64,27 @@ in
   # Enable Bluetooth hardware support
   hardware.bluetooth.enable = true;
 
+  systemd.services.docker-macvlan = {
+    description = "Docker macvlan network setup";
+    after = [ "docker.service" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = ''
+        ${pkgs.docker}/bin/docker network create -d macvlan \
+          --subnet=192.168.2.0/24 \
+          --gateway=192.168.2.1 \
+          -o parent=enp1s0 \
+          home_bridge
+      '';
+      ExecStop = "${pkgs.docker}/bin/docker network rm home_bridge";
+    };
+  };
+
   systemd.services.install-homeassistant = {
     description = "Install and run Home Assistant in Docker";
-    after = [ "docker.service" ];
+    after = [ "docker.service" "docker-macvlan.service" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       Type = "simple";
@@ -70,42 +92,40 @@ in
         "-${pkgs.docker}/bin/docker stop homeassistant || true"
         "-${pkgs.docker}/bin/docker rm homeassistant || true"
       ];
-      ExecStart = "${pkgs.docker}/bin/docker run -d --name homeassistant "
-                  + "-p 8123:8123 "
-                  + "--net=host "
-                  + "-e TZ=\"Europe/Rome\" "
-                  + "-v /etc/homeassistant:/config "
-                  + "-v /run/dbus:/run/dbus:ro "
-                  + "-v /mnt/music:/media/music:rw "
-                  + "homeassistant/home-assistant:latest";
+      ExecStart = ''
+        ${pkgs.docker}/bin/docker run -d --name homeassistant \
+          --network=home_bridge \
+          --ip=192.168.2.11 \
+          --hostname HomeAssistant \
+          --mac-address B8:27:EB:12:34:56 \
+          -e TZ="Europe/Rome" \
+          -v /etc/homeassistant:/config \
+          -v /run/dbus:/run/dbus:ro \
+          -v /mnt/music:/media/music:rw \
+          homeassistant/home-assistant:latest
+      '';
     };
   };
 
   systemd.services.jellyfin = {
     description = "Jellyfin Media Server";
-    after = [ "docker.service" ];
+    after = [ "docker.service" "docker-macvlan.service" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       Type = "simple";
-
-      # Pre-start commands to ensure volumes are created
       ExecStartPre = [
-        # Ensure volume for config is created
         "${pkgs.docker}/bin/docker volume create jellyfin-config"
-
-        # Ensure volume for cache is created
         "${pkgs.docker}/bin/docker volume create jellyfin-cache"
-
-        # Stop and remove existing container if it exists
         "-${pkgs.docker}/bin/docker stop jellyfin || true"
         "-${pkgs.docker}/bin/docker rm jellyfin || true"
       ];
-
-      # Start the Jellyfin container with volume mounts
       ExecStart = ''
         ${pkgs.docker}/bin/docker run -d --name jellyfin \
-          -p 8096:8096 \
-          --restart always \
+          --network=home_bridge \
+          --ip=192.168.2.12 \
+          --hostname Jellyfin \
+          --mac-address B8:27:EB:12:34:57 \
+          -e TZ="Europe/Rome" \
           -v /mnt/media:/media:ro \
           -v jellyfin-config:/config \
           -v jellyfin-cache:/cache \
@@ -117,7 +137,7 @@ in
   fileSystems."/mnt/media" = {
     device = "//192.168.2.2/media";
     fsType = "cifs";
-    options = [ "username=media" "password=PASSWORD" "rw" ];
+    options = [ "username=media" "password=sdsd" "rw" ];
   };
 
   fileSystems."/mnt/dropbox" = {
