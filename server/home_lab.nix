@@ -60,28 +60,6 @@ in
   # Enable Bluetooth hardware support
   hardware.bluetooth.enable = true;
 
-  # Docker-based service for open-webui
-  systemd.services.open-webui = {
-    description = "Open WebUI Service";
-    after = [ "docker.service" ];
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      Type = "simple";
-      ExecStartPre = [
-        "-${pkgs.docker}/bin/docker stop open-webui || true"
-        "-${pkgs.docker}/bin/docker rm open-webui || true"
-      ];
-      ExecStart = "${pkgs.docker}/bin/docker run -d "
-            + "--name open-webui "
-            + "-p 3000:8080 "
-            + "--restart always "
-            + "-e OLLAMA_BASE_URL=http://127.0.0.1:11434 "
-            + "-v open-webui:/app/backend/data "
-            + "ghcr.io/open-webui/open-webui:ollama";
-    };
-  };
-
-  # Optional: Docker-based Home Assistant service
   systemd.services.install-homeassistant = {
     description = "Install and run Home Assistant in Docker";
     after = [ "docker.service" ];
@@ -141,4 +119,19 @@ in
     fsType = "cifs";
     options = [ "username=media" "password=PASSWORD" "rw" ];
   };
+
+  fileSystems."/mnt/dropbox" = {
+    device = "//192.168.2.2/dropbox";
+    fsType = "cifs";
+    options = [
+      "guest"
+      "uid=1000"
+      "gid=100"
+      "file_mode=0644"
+      "dir_mode=0755"
+      "rw"
+      "vers=3.0"
+    ];
+  };
+
 }
