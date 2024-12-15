@@ -31,6 +31,9 @@
         isNormalUser = true;
         password = "nixos";
         extraGroups =[ "wheel" "docker" "video" "render" ];
+        openssh.authorizedKeys.keys = [
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFZeLeV6OguRFHf6SArcMMJMVFABQu7n72YcdOe0NX6h"
+        ];
     };
 
     environment.systemPackages = with pkgs;[
