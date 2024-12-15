@@ -148,7 +148,85 @@ curl -L https://raw.githubusercontent.com/davidgatti/nixos_setup/main/user/home.
 home-manager switch
 ```
 
-
 # 🧐 F.A.Q
 
-- `sudo nixos-rebuild switch -I nixos-config=./configuration.nix`
+### **System Configuration and Updates**
+- **`sudo nixos-rebuild switch -I nixos-config=./configuration.nix`**  
+  This command rebuilds the system configuration from a specified `configuration.nix` file and immediately switches the system to use the new configuration. Use this after modifying the `configuration.nix` file to apply updates, such as installing packages, enabling services, or changing system settings.
+
+- **`sudo nixos-rebuild switch --upgrade`**  
+  Similar to the above command but also updates all system packages and channels to their latest versions before applying the new configuration. Use this regularly to keep your system updated.
+
+- **`nix-channel --update`**  
+  Updates all configured NixOS and Nix channels to fetch the latest package definitions. Run this command before upgrading your system to ensure you’re using the latest package versions.
+
+### **Maintenance and Cleanup**
+- **`nix-collect-garbage -d`**  
+  Removes unused packages and old system generations from the nix store to free up disk space. Useful for cleaning up leftover files after multiple system rebuilds.
+
+- **`nix-store --optimise`**  
+  Deduplicates files in the nix store to reduce its size and optimize space usage. Use this periodically to clean up redundant files.
+
+- **`nix-store --gc`**  
+  Performs garbage collection on the nix store to remove all paths not referenced by any active system or user profile. This is less aggressive than `nix-collect-garbage`.
+
+- **`nix-store --verify --repair`**  
+  Verifies the integrity of files in the nix store and repairs any corrupted paths. Use this if you suspect issues with your nix store or after unexpected interruptions like a power outage.
+
+- **`sudo journalctl --vacuum-time=1w`**  
+  Deletes old system logs (e.g., logs older than one week) to free up disk space. Adjust the time (`1w`, `1m`, etc.) as needed.
+
+- **`sudo du -sh /nix`**  
+  Checks the size of the nix store to monitor its growth and identify when cleanup might be needed.
+
+### **Diagnostics and Debugging**
+- **`nix-store --verify`**  
+  Checks the integrity of the nix store without repairing it. Use this to identify any issues with stored files.
+
+- **`journalctl -xe`**  
+  Displays detailed system logs with a focus on recent errors. Use this to troubleshoot issues with services or the system.
+
+- **`systemctl status <service>`**  
+  Checks the status of a specific service to determine if it is running, stopped, or encountering issues.
+
+- **`nix why-depends <package> <dependency>`**  
+  Explains why a package depends on a specific dependency. This is useful for debugging dependency-related issues.
+
+### **Package Management**
+- **`nix-env --upgrade`**  
+  Upgrades all user-installed packages to their latest versions. This does not affect system-wide packages.
+
+- **`nix-env -q`**  
+  Lists all packages installed in the user environment.
+
+- **`nix-env -e <package>`**  
+  Removes a package from the user environment.
+
+- **`nix-shell`**  
+  Launches an isolated shell environment with specific dependencies. This is useful for temporary setups or development work without permanently installing packages.
+
+### Suggested Routine for NixOS Maintenance
+1. Regularly update channels and rebuild your system:
+   ```bash
+   nix-channel --update
+   sudo nixos-rebuild switch --upgrade
+   ```
+
+2. Clean up unused data:
+   ```bash
+   nix-collect-garbage -d
+   nix-store --optimise
+   ```
+
+3. Periodically verify the system:
+   ```bash
+   nix-store --verify
+   journalctl -xe
+   ```
+
+4. Check disk usage and manage logs:
+   ```bash
+   sudo du -sh /nix
+   sudo journalctl --vacuum-time=1w
+   ```
+
