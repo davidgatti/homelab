@@ -71,7 +71,7 @@
         
             # Download and source git-prompt.sh if not present
             if [ ! -f ~/.git-prompt.sh ]; then
-            curl -o ~/.git-prompt.sh https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh
+                curl -o ~/.git-prompt.sh https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh
             fi
 
             source ~/.git-prompt.sh
