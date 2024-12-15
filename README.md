@@ -230,3 +230,8 @@ home-manager switch
    sudo journalctl --vacuum-time=1w
    ```
 
+## Docker
+
+```sh
+docker stop $(docker ps -q) && docker rm $(docker ps -aq) && docker network rm home_bridge
+```
