@@ -123,7 +123,7 @@ reboot
 
 Once connected via SSH, proceed with the NixOS configuration. Copy and paste the following command to start the configuration process:
 
-### DNS Setup
+### For DNS Server
 
 ```bash
 sudo bash -c ': > /etc/nixos/configuration.nix && \
@@ -132,7 +132,7 @@ nixos-rebuild switch && \
 cat ~/.config/code-server/config.yaml'
 ```
 
-### HomeLab Setup
+### For HomeLab server
 
 ```bash
 sudo bash -c ': > /etc/nixos/configuration.nix && \
@@ -148,7 +148,7 @@ curl -L https://raw.githubusercontent.com/davidgatti/nixos_setup/main/user/home.
 home-manager switch
 ```
 
-# 🧐 F.A.Q
+# 🧐 NixOS Docuemntation
 
 ### **System Configuration and Updates**
 - **`sudo nixos-rebuild switch -I nixos-config=./configuration.nix`**  
