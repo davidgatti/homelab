@@ -83,60 +83,57 @@
             # Customize the bash prompt
             export PS1="\[\e[0;30;48;2;255;0;0m\] \u][\W  $(__git_ps1 '%s')\[\e[0m\]\[\e[38;2;255;0;0m\]\[\e[0m\] "
         '';
-      };
+    };
 
     # Replace Code-Server settings.json
-    home.file.".local/share/code-server/User/settings.json" = {
-        source = pkgs.writeText "settings.json" ''
-        {
-          "workbench.colorTheme": "Default Dark+",
-          "editor.fontSize": 12,
-          "terminal.integrated.fontSize": 12,
-          "terminal.integrated.cwd": "/home/nixos",
-          "explorer.confirmDelete": true,
-          "files.autoSave": "onWindowChange",
-          "explorer.compactFolders": false,
-          "workbench.tree.indent": 16,
-          "workbench.colorCustomizations": {
-              "terminal.background": "#000000",
-              "terminal.foreground": "#cc0000",
-              "terminalCursor.foreground": "#ff0000",
-              "terminal.ansiBlack": "#000000",
-              "terminal.ansiRed": "#ff0000",
-              "terminal.ansiGreen": "#006400",
-              "terminal.ansiYellow": "#b8860b",
-              "terminal.ansiBlue": "#8B0000",
-              "terminal.ansiMagenta": "#ff1493",
-              "terminal.ansiCyan": "#00ced1",
-              "terminal.ansiWhite": "#d3d3d3",
-              "terminal.ansiBrightBlack": "#696969",
-              "terminal.ansiBrightRed": "#ff0000",
-              "terminal.ansiBrightGreen": "#32cd32",
-              "terminal.ansiBrightYellow": "#ffd700",
-              "terminal.ansiBrightBlue": "#ff0000",
-              "terminal.ansiBrightMagenta": "#ff69b4",
-              "terminal.ansiBrightCyan": "#e0ffff",
-              "terminal.ansiBrightWhite": "#ffffff",
-              "statusBar.background": "#8b0000",
-              "statusBar.foreground": "#ffffff",
-              "statusBar.debuggingBackground": "#ff0000",
-              "statusBar.debuggingForeground": "#ffffff",
-              "statusBarItem.remoteBackground": "#8b0000",
-              "statusBarItem.remoteForeground": "#ffffff",
-              "terminal.tab.activeBackground": "#8b0000",
-              "terminal.tab.activeForeground": "#ffffff",
-              "terminal.tab.inactiveBackground": "#660000",
-              "terminal.tab.inactiveForeground": "#d3d3d3"
-          },
-          "terminal.integrated.fontFamily": "'Hack Nerd Font', monospace",
-          "terminal.integrated.cursorStyle": "block",
-          "git.enableSmartCommit": true,
-          "git.confirmSync": false,
-          "terminal.integrated.autoFocus": true,
-          "editor.suggest.showComments": false,
-          "docker.containers.sortBy": "Label"
-        }
-        '';
-        permissions = "0644";
-    };
+    home.file.".local/share/code-server/User/settings.json".text = ''
+    {
+      "workbench.colorTheme": "Default Dark+",
+      "editor.fontSize": 12,
+      "terminal.integrated.fontSize": 12,
+      "terminal.integrated.cwd": "/home/nixos",
+      "explorer.confirmDelete": true,
+      "files.autoSave": "onWindowChange",
+      "explorer.compactFolders": false,
+      "workbench.tree.indent": 16,
+      "workbench.colorCustomizations": {
+          "terminal.background": "#000000",
+          "terminal.foreground": "#cc0000",
+          "terminalCursor.foreground": "#ff0000",
+          "terminal.ansiBlack": "#000000",
+          "terminal.ansiRed": "#ff0000",
+          "terminal.ansiGreen": "#006400",
+          "terminal.ansiYellow": "#b8860b",
+          "terminal.ansiBlue": "#8B0000",
+          "terminal.ansiMagenta": "#ff1493",
+          "terminal.ansiCyan": "#00ced1",
+          "terminal.ansiWhite": "#d3d3d3",
+          "terminal.ansiBrightBlack": "#696969",
+          "terminal.ansiBrightRed": "#ff0000",
+          "terminal.ansiBrightGreen": "#32cd32",
+          "terminal.ansiBrightYellow": "#ffd700",
+          "terminal.ansiBrightBlue": "#ff0000",
+          "terminal.ansiBrightMagenta": "#ff69b4",
+          "terminal.ansiBrightCyan": "#e0ffff",
+          "terminal.ansiBrightWhite": "#ffffff",
+          "statusBar.background": "#8b0000",
+          "statusBar.foreground": "#ffffff",
+          "statusBar.debuggingBackground": "#ff0000",
+          "statusBar.debuggingForeground": "#ffffff",
+          "statusBarItem.remoteBackground": "#8b0000",
+          "statusBarItem.remoteForeground": "#ffffff",
+          "terminal.tab.activeBackground": "#8b0000",
+          "terminal.tab.activeForeground": "#ffffff",
+          "terminal.tab.inactiveBackground": "#660000",
+          "terminal.tab.inactiveForeground": "#d3d3d3"
+      },
+      "terminal.integrated.fontFamily": "'Hack Nerd Font', monospace",
+      "terminal.integrated.cursorStyle": "block",
+      "git.enableSmartCommit": true,
+      "git.confirmSync": false,
+      "terminal.integrated.autoFocus": true,
+      "editor.suggest.showComments": false,
+      "docker.containers.sortBy": "Label"
+    }
+    '';
 }
