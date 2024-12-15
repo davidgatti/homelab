@@ -144,7 +144,7 @@ cat ~/.config/code-server/config.yaml'
 ## User Configuration
 
 ```bash
-curl -L https://raw.githubusercontent.com/davidgatti/nixos_setup/main/user/home.nix -o ~/.config/home-manager/home.nix && \
+curl -L https://raw.githubusercontent.com/davidgatti/nixos_setup/main/user.nix -o ~/.config/home-manager/home.nix && \
 home-manager switch
 ```
 
