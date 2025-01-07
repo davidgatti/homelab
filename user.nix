@@ -21,6 +21,7 @@
     home.packages = with pkgs; [
         tree
         gh
+        jq
         btop
         git
         cmatrix
@@ -133,7 +134,8 @@
       "git.confirmSync": false,
       "terminal.integrated.autoFocus": true,
       "editor.suggest.showComments": false,
-      "docker.containers.sortBy": "Label"
+      "docker.containers.sortBy": "Label",
+      "search.followSymlinks": false
     }
     '';
 }
