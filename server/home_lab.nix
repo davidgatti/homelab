@@ -165,7 +165,7 @@
                 --hostname n8n \
                 --mac-address B8:27:EB:12:34:59 \
                 -e N8N_SECURE_COOKIE=false \
-                -e TZ="Europe/Rome" \
+                -e GENERIC_TIMEZONE=Europe/Rome \
                 -e N8N_PORT=80 \
                 -v n8n-data:/home/node/.n8n:rw \
                 n8nio/n8n:latest
@@ -196,7 +196,6 @@
             '';
         };
     };
-
 
     fileSystems."/mnt/media" = {
         device = "//192.168.2.2/media";
