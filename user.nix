@@ -61,28 +61,54 @@
       
         # Add custom configurations and export variables
         initExtra = ''
-            # History configurations
-            export HISTFILESIZE=100000
-            export HISTSIZE=10000
-            shopt -s histappend
-            shopt -s checkwinsize
-            shopt -s extglob
-            shopt -s globstar
-            shopt -s checkjobs
-        
-            # Download and source git-prompt.sh if not present
-            if [ ! -f ~/.git-prompt.sh ]; then
-                curl -o ~/.git-prompt.sh https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh
-            fi
+            # .bashrc
 
-            source ~/.git-prompt.sh
-        
-            # Set options for Git prompt
-            export GIT_PS1_SHOWDIRTYSTATE=1
-            export GIT_PS1_SHOWUNTRACKEDFILES=1
-        
-            # Customize the bash prompt
-            export PS1="\[\e[0;30;48;2;255;0;0m\] \u][\W  $(__git_ps1 '%s')\[\e[0m\]\[\e[38;2;255;0;0m\]\[\e[0m\] "
+            # Source global definitions
+            if [ -f /etc/bashrc ]; then
+            	. /etc/bashrc
+            fi
+            
+            # User-specific environment
+            if ! [[ "$PATH" =~ "$HOME/.local/bin:$HOME/bin:" ]]; then
+                PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+            fi
+            
+            # Export all the combined string.
+            export PATH
+            
+            # Disable systemctl's auto-paging feature where it sends the output to less.
+            export SYSTEMD_PAGER=
+            
+            # User-specific aliases and functions
+            if [ -d ~/.bashrc.d ]; then
+            	for rc in ~/.bashrc.d/*; do
+            		if [ -f "$rc" ]; then
+            			. "$rc"
+            		fi
+            	done
+            fi
+            
+            unset rc
+            
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+            
+            function has_uncommitted_changes() {
+                git diff --quiet && git diff --cached --quiet || echo " "
+            }
+            
+            function simple_git_branch_and_status() {
+                branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+                if [ -n "$branch" ]; then
+                    changes=$(has_uncommitted_changes)
+                    echo "($branch)$changes"
+                fi
+            }
+            
+            # Customize the bash prompt with auto-updating Git branch
+            PROMPT_COMMAND='PS1="\[\e[0;30;48;2;255;0;0m\] \u][\W  $(simple_git_branch_and_status)\[\e[0m\]\[\e[38;2;255;0;0m\]\[\e[0m\] "'
+
         '';
     };
 
