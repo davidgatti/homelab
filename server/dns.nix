@@ -21,7 +21,7 @@
 
   users.users.nixos = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "docker" "nixos" ];
+    extraGroups = [ "wheel" "docker" ];
     password = "nixos";
   };
 
