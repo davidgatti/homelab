@@ -127,7 +127,7 @@ Once connected via SSH, proceed with the NixOS configuration. Copy and paste the
 
 ```bash
 sudo bash -c ': > /etc/nixos/configuration.nix && \
-curl -L https://raw.githubusercontent.com/davidgatti/nixos_setup/main/server/dns.nix -o /etc/nixos/configuration.nix && \
+curl -L https://raw.githubusercontent.com/davidgatti/homelab/main/server/dns.nix -o /etc/nixos/configuration.nix && \
 nixos-rebuild switch && \
 cat ~/.config/code-server/config.yaml'
 ```
@@ -136,7 +136,7 @@ cat ~/.config/code-server/config.yaml'
 
 ```bash
 sudo bash -c ': > /etc/nixos/configuration.nix && \
-curl -L https://raw.githubusercontent.com/davidgatti/nixos_setup/main/server/home_lab.nix -o /etc/nixos/configuration.nix && \
+curl -L https://raw.githubusercontent.com/davidgatti/homelab/main/server/home_lab.nix -o /etc/nixos/configuration.nix && \
 nixos-rebuild switch && \
 cat ~/.config/code-server/config.yaml'
 ```
