@@ -12,13 +12,14 @@
     system.stateVersion = "24.05";
     networking.hostName = "HomeLab";
 
-    # Disable firewall, since it causes problems
     networking.firewall.enable = false;
-    
-    # Enable Docker with default configuration only
-    virtualisation.docker.enable = true;
 
-    # Enable Bluetooth hardware support
+    # Enable Docker with additional options
+    virtualisation.docker = {
+        enable = true;
+        extraOptions = "--default-ulimit nofile=65535:65535";
+    };
+
     hardware.bluetooth.enable = true;
 
     services.openssh = {
@@ -50,6 +51,11 @@
         host = "0.0.0.0";
     };
 
+    # Add global systemd limit for file descriptors
+    systemd.extraConfig = ''
+      DefaultLimitNOFILE=65535
+    '';
+
     systemd.services.docker-macvlan = {
         description = "Docker macvlan network setup";
         after = [ "docker.service" ];
@@ -68,7 +74,7 @@
         };
     };
 
-    systemd.services.install-homeassistant = {
+    systemd.services.homeassistant = {
         description = "Install and run Home Assistant in Docker";
         after = [ "docker.service" "docker-macvlan.service" ];
         wantedBy = [ "multi-user.target" ];
@@ -90,8 +96,10 @@
                 -v /mnt/music:/media/music:rw \
                 --device=/dev/bus/usb \
                 --privileged \
+                --ulimit nofile=65535:65535 \
                 homeassistant/home-assistant:latest
             '';
+            LimitNOFILE = 65535;
         };
     };
 
@@ -117,32 +125,8 @@
                 -v /mnt/media:/media:ro \
                 -v jellyfin-config:/config \
                 -v jellyfin-cache:/cache \
+                --no-healthcheck \
                 jellyfin/jellyfin:latest
-            '';
-        };
-    };
-
-    systemd.services.node-red = {
-        description = "Node-RED Service";
-        after = [ "docker.service" "docker-macvlan.service" ];
-        wantedBy = [ "multi-user.target" ];
-        serviceConfig = {
-            Type = "simple";
-            ExecStartPre = [
-                "${pkgs.docker}/bin/docker volume create nodered-data"
-                "-${pkgs.docker}/bin/docker stop node-red || true"
-                "-${pkgs.docker}/bin/docker rm node-red || true"
-            ];
-            ExecStart = ''
-                ${pkgs.docker}/bin/docker run -d --name node-red \
-                --network=home_bridge \
-                --ip=192.168.2.16 \
-                --hostname node-red \
-                --mac-address B8:27:EB:12:34:58 \
-                -e TZ="Europe/Rome" \
-                -e PORT=80 \
-                -v nodered-data:/data:rw \
-                nodered/node-red:latest
             '';
         };
     };
@@ -193,6 +177,140 @@
                 -e TZ="Europe/Rome" \
                 -v qdrant-data:/qdrant/storage:rw \
                 qdrant/qdrant
+            '';
+        };
+    };
+
+    systemd.services.openttd = {
+        description = "OpenTTD Game Server";
+        after = [ "docker.service" "docker-macvlan.service" ];
+        wantedBy = [ "multi-user.target" ];
+        serviceConfig = {
+            Type = "simple";
+            ExecStartPre = [
+                "${pkgs.docker}/bin/docker volume create openttd-data"
+                "-${pkgs.docker}/bin/docker stop openttd || true"
+                "-${pkgs.docker}/bin/docker rm openttd || true"
+            ];
+            ExecStart = ''
+                ${pkgs.docker}/bin/docker run -d --name openttd \
+                --network=home_bridge \
+                --ip=192.168.2.19 \
+                --hostname openttd \
+                --mac-address B8:27:EB:12:34:61 \
+                -e TZ="Europe/Rome" \
+                -v /home/your_username/Documents/open_ttd/main.cfg:/openttd/data/openttd.cfg:ro \
+                -p 3979:3979 \
+                -p 3978:3978/udp \
+                ghcr.io/ropenttd/openttd:latest
+            '';
+        };
+    };
+
+    systemd.services.openra-red-alert = {
+        description = "OpenRA Red Alert Game Server";
+        after = [ "docker.service" "docker-macvlan.service" ];
+        wantedBy = [ "multi-user.target" ];
+        serviceConfig = {
+            Type = "simple";
+            ExecStartPre = [
+                "${pkgs.docker}/bin/docker volume create openra-red-alert-data"
+                "-${pkgs.docker}/bin/docker stop openra-red-alert || true"
+                "-${pkgs.docker}/bin/docker rm openra-red-alert || true"
+            ];
+            ExecStart = ''
+                ${pkgs.docker}/bin/docker run -d --name openra-red-alert \
+                --network=home_bridge \
+                --ip=192.168.2.20 \
+                --hostname openra-red-alert \
+                --mac-address B8:27:EB:12:34:65 \
+                -e Name="Red Alert Server" \
+                -e Mod="ra" \
+                -e AdvertiseOnline=True \
+                -e Password="redalertpass" \
+                -v openra-red-alert-data:/home/openra/.openra:rw \
+                -p 1234:1234 \
+                -p 1234:1234/udp \
+                ghcr.io/dkruyt/openra:latest
+            '';
+        };
+    };
+
+    systemd.services.postgres = {
+        description = "PostgreSQL Database Server";
+        after = [ "docker.service" "docker-macvlan.service" ];
+        wantedBy = [ "multi-user.target" ];
+        serviceConfig = {
+            Type = "simple";
+            ExecStartPre = [
+                "${pkgs.docker}/bin/docker volume create postgres-data"
+                "-${pkgs.docker}/bin/docker stop postgres || true"
+                "-${pkgs.docker}/bin/docker rm postgres || true"
+            ];
+            ExecStart = ''
+            ${pkgs.docker}/bin/docker run -d --name postgres \
+            --network=home_bridge \
+            --ip=192.168.2.21 \
+            --hostname postgres \
+            --mac-address B8:27:EB:12:34:66 \
+            -e POSTGRES_USER=admin \
+            -e POSTGRES_PASSWORD=password \
+            -e POSTGRES_DB=default \
+            -v postgres-data:/var/lib/postgresql/data \
+            -p 5432:5432 \
+            postgres:latest
+            '';
+        };
+    };
+
+    systemd.services.redis = {
+        description = "Redis Server";
+        after = [ "docker.service" "docker-macvlan.service" ];
+        wantedBy = [ "multi-user.target" ];
+        serviceConfig = {
+            Type = "simple";
+            ExecStartPre = [
+                "${pkgs.docker}/bin/docker volume create redis-data"
+                "-${pkgs.docker}/bin/docker stop redis || true"
+                "-${pkgs.docker}/bin/docker rm redis || true"
+            ];
+            ExecStart = ''
+            ${pkgs.docker}/bin/docker run -d --name redis \
+            --network=home_bridge \
+            --ip=192.168.2.22 \
+            --hostname redis \
+            --mac-address B8:27:EB:12:34:67 \
+            -v redis-data:/data \
+            -p 6379:6379 \
+            redis:latest --appendonly yes
+            '';
+        };
+    };
+
+    systemd.services.docmost = {
+        description = "Docmost Server";
+        after = [ "docker.service" "docker-macvlan.service" ];
+        wantedBy = [ "multi-user.target" ];
+        serviceConfig = {
+            Type = "simple";
+            ExecStartPre = [
+                "${pkgs.docker}/bin/docker volume create docmost-data"
+                "-${pkgs.docker}/bin/docker stop docmost || true"
+                "-${pkgs.docker}/bin/docker rm docmost || true"
+            ];
+            ExecStart = ''
+            ${pkgs.docker}/bin/docker run -d --name docmost \
+            --network=home_bridge \
+            --ip=192.168.2.23 \
+            --hostname docmost \
+            --mac-address B8:27:EB:12:34:68 \
+            -e APP_URL="http://192.168.2.23" \
+            -e APP_SECRET="a3f2e1d6c9b82e4740d64f1a8e2cbd8c" \
+            -e DATABASE_URL="postgresql://admin:password@192.168.2.21:5432/docmost?schema=public" \
+            -e REDIS_URL="redis://192.168.2.22:6379" \
+            -e PORT=80 \
+            -v docmost-data:/app/data/storage \
+            docmost/docmost:latest
             '';
         };
     };
