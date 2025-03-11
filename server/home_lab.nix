@@ -226,8 +226,9 @@
                 --mac-address B8:27:EB:12:34:65 \
                 -e Name="Red Alert Server" \
                 -e Mod="ra" \
-                -e AdvertiseOnline=True \
-                -e Password="redalertpass" \
+                -e AdvertiseOnline=False \
+                -e RequireAuthentication=False \
+                -e EnableSingleplayer=True \
                 -v openra-red-alert-data:/home/openra/.openra:rw \
                 -p 1234:1234 \
                 -p 1234:1234/udp \
